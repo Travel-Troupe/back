@@ -1,0 +1,13 @@
+{
+  "name": "back",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "start": "nodemon index.js 4000"
+  },
+  "dependencies": {
+    "nodemon": "^2.0.13"
+  }
+}
