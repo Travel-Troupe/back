@@ -22,3 +22,13 @@ $ yarn
 ```bash
 $ docker compose up # add the `--build --force-recreate` flags if you've added a dependency
 ```
+
+Make sure you have eslint installed globally
+```bash
+$ eslint -v
+```
+
+Otherwise install it
+```bash
+$ yarn global add eslint
+```

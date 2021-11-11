@@ -18,6 +18,7 @@ services:
       DATABASE_NAME: $DB_NAME
       MONGO_ROOT_USERNAME: $DB_ADMIN_USERNAME
       MONGO_ROOT_PASSWORD: $DB_ADMIN_PWD
+      MONGO_HOST: mongodb
     volumes:
       - ./:/app
       - /app/node_modules

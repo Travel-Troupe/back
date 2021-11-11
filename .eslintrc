@@ -8,12 +8,17 @@
     "ecmaVersion": 12,
     "sourceType": "module"
   },
+  "plugins": [
+    "import"
+  ],
   "rules": {
     "indent": ["error", 2],
     "linebreak-style": ["error", "unix"],
     "quotes": ["error", "single"],
     "semi": ["error","never"],
     "eol-last": ["error", "always"],
-    "no-multiple-empty-lines": ["error", { "max": 1, "maxEOF": 0 }]
+    "no-multiple-empty-lines": ["error", { "max": 1, "maxEOF": 0 }],
+    "no-var": "error",
+    "import/no-commonjs": "error"
   }
 }
