@@ -5,7 +5,9 @@
   "license": "MIT",
   "type": "module",
   "scripts": {
-    "start": "nodemon src/server.js 5000"
+    "start": "nodemon src/server.js 5000",
+    "test": "echo \"Error: no test specified\" && exit 0",
+    "lint": "eslint --ext .js src/"
   },
   "dependencies": {
     "cors": "^2.8.5",
@@ -14,6 +16,7 @@
     "nodemon": "^2.0.13"
   },
   "devDependencies": {
-    "eslint": "^7.32.0"
+    "eslint": "^7.32.0",
+    "eslint-plugin-import": "^2.25.3"
   }
 }
