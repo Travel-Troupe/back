@@ -9,7 +9,7 @@ dotenv.config()
 
 router.get('/login', passport.authenticate('auth0', {
   scope: 'openid email profile'
-}), function (_, res) {
+}), function (req, res) {
   res.redirect('/')
 })
 
