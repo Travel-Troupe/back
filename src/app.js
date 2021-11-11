@@ -2,6 +2,7 @@ import express from 'express'
 import cors from 'cors'
 import IndexRoutes from './routes/index.js'
 import AuthRoutes from './routes/auth.js'
+import UserRoutes from './routes/user.js'
 import connectDb from './utils/connection.js'
 import cookieParser from 'cookie-parser'
 import session from 'express-session'
@@ -25,6 +26,15 @@ let strategy = new Auth0Strategy(
 )
 
 passport.use(strategy)
+ 
+// You can use this section to keep a smaller payload
+passport.serializeUser(function (user, done) {
+  done(null, user)
+})
+  
+passport.deserializeUser(function (user, done) {
+  done(null, user)
+})
   
 const app = express()
 
@@ -52,4 +62,5 @@ app.use(cors())
 // Routes
 app.use('/', IndexRoutes)
 app.use('/', AuthRoutes)
+app.use('/', UserRoutes)
 export default app
