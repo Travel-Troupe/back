@@ -27,7 +27,6 @@ let strategy = new Auth0Strategy(
 
 passport.use(strategy)
  
-// You can use this section to keep a smaller payload
 passport.serializeUser(function (user, done) {
   done(null, user)
 })
