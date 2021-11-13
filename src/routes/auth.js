@@ -1,10 +1,12 @@
-import passport from 'passport'
 import dotenv from 'dotenv'
 import util from 'util'
 import url from 'url'
 import querystring from 'querystring'
-import router from './index.js'
+import { Router } from 'express'
 
+import passport from '../config/passport.js'
+
+const router = Router()
 dotenv.config()
 
 router.get('/login', passport.authenticate('auth0', {
