@@ -30,4 +30,5 @@ app.use(cors())
 app.use('/', IndexRoutes)
 app.use('/', AuthRoutes)
 app.use('/', UserRoutes)
+
 export default app
