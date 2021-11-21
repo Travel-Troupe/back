@@ -5,6 +5,7 @@ import querystring from 'querystring'
 import { Router } from 'express'
 
 import passport from '../config/passport.js'
+import { isProduction } from '../config/constant.js'
 
 const router = Router()
 dotenv.config()
@@ -33,7 +34,8 @@ router.get('/logout', (req, res) => {
 
   let returnTo = req.protocol + '://' + req.hostname
   let port = req.connection.localPort
-  if (port !== undefined && port !== 80 && port !== 443) {
+  // production is using default port
+  if (port !== undefined && port !== 80 && port !== 443 && !isProduction) {
     returnTo += ':' + port
   }
 
