@@ -16,10 +16,10 @@ dotenv.config()
 connectDb()
 
 app.use(passport.initialize())
-app.use(passport.session())
 
 app.use(cookieParser())
 app.use(session(sess))
+app.use(passport.session())
 
 app.use(express.urlencoded({extended: true})) 
 app.use(express.json())
