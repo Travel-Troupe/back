@@ -3,8 +3,10 @@ import strategy from './strategy.js'
 
 export const sess = {
   secret: process.env.SESSION_SECRET,
-  cookie: {},
-  resave: false,
+  cookie: {
+    maxAge: 1200000,
+  },
+  resave: true,
   saveUninitialized: true
 }
 
