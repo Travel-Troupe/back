@@ -15,8 +15,9 @@ dotenv.config()
 
 connectDb()
 
-app.use(passport.initialize())
+app.use('/static', express.static('public'))
 
+app.use(passport.initialize())
 app.use(cookieParser())
 app.use(session(sess))
 app.use(passport.session())

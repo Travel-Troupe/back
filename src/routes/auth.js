@@ -11,7 +11,15 @@ const router = Router()
 dotenv.config()
 
 router.get('/login', passport.authenticate('auth0', {
-  scope: 'openid email profile'
+  scope: 'openid email profile',
+  hintLogin: false
+}), function (req, res) {
+  res.redirect('/')
+})
+
+router.get('/signup', passport.authenticate('auth0', {
+  scope: 'openid email profile',
+  hintLogin: true
 }), function (req, res) {
   res.redirect('/')
 })
