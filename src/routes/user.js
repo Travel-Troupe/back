@@ -1,9 +1,13 @@
-import secured from '../../lib/middleware/secured.js'
 import { Router } from 'express'
+import secured from '../../lib/middleware/secured.js'
+import * as UserController from '../controllers/UserController.js'
 
 const router = Router()
-router.get('/user', secured(), function (_, res) {
-  res.status(200).json({ message: 'Logged' })
-})
+
+router.get(
+  '/',
+  secured,
+  UserController.loggedIn
+)
 
 export default router

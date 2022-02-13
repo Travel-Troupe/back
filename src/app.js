@@ -7,6 +7,7 @@ import session from 'express-session'
 import IndexRoutes from './routes/index.js'
 import AuthRoutes from './routes/auth.js'
 import UserRoutes from './routes/user.js'
+import TeamRoutes from './routes/team.js'
 import connectDb from './utils/connection.js'
 import passport, { sess }  from './config/passport.js'
 
@@ -29,6 +30,7 @@ app.use(cors())
 // Routes
 app.use('/', IndexRoutes)
 app.use('/', AuthRoutes)
-app.use('/', UserRoutes)
+app.use('/user', UserRoutes)
+app.use('/team', TeamRoutes)
 
 export default app

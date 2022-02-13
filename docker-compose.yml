@@ -3,7 +3,7 @@ services:
   server:
     env_file:
       - .env
-    image: "node:14.15.1"
+    image: "node:16-buster"
     working_dir: /app
     command: bash -c "yarn && yarn start"
     restart: always
