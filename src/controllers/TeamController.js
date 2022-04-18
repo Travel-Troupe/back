@@ -5,9 +5,10 @@ import User from '../models/User.js'
 export async function createTeam(req, res) {
   try {
     const { user, body: { name } } = req
-    if (name && user && user.nickname) {
-      const owner = await User.findOne({ name: user.nickname })
-      const slug = slugify(`${owner.name} ${name}`)
+
+    if (name && user && user.name) {
+      const owner = await User.findOne({ name: user.name })
+      const slug = slugify(`${owner.name} ${name}`.toLowerCase())
       const team = await Team.create({
         name,
         slug,
@@ -25,16 +26,37 @@ export async function createTeam(req, res) {
   }
 }
 
+/**
+ * Joining team with slug
+ */
 export async function joinTeam(req, res) {
-  return res.status(200).json({ message: 'joined'})
+  const { name } = req.user
+  const { slug } = req.body
+
+  const currentUser = await User.findOne({ name })
+
+  const team = await Team.findOne({ slug })
+
+  if (team && currentUser) {
+    if (!team.teamComposition.includes(currentUser.id)) {
+      team.teamComposition.push(currentUser.id)
+      team.save()
+      return res.status(200).json({ message: 'joined'})
+    } else {
+      return res.status(400).json({ message: 'you\'ve already joined this team'})
+    }
+  }
+  
+  return res.status(400).json({ message: 'Nothing happened'})
 }
 
 export async function getUsersTeam(req, res) {
   try {
-    const { user: { nickname: name } } = req
+    const { user: { name } } = req
+
     if (name) {
       const currentUser = await User.findOne({ name })
-      const teams = await Team.find({ teamComposition: currentUser.id })
+      const teams = await Team.find({ teamComposition: { $in: [currentUser.id]} })
         .populate('teamComposition')
       return res.status(200).json(teams)
     }
@@ -44,7 +66,3 @@ export async function getUsersTeam(req, res) {
     return res.status(400).json({ error: 'Bad request' })
   }
 }
-
-// export async function searchTeam(req, res) {
-
-// }

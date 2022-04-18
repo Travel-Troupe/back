@@ -1,24 +1,24 @@
 import { Router } from 'express'
-import secured from '../../lib/middleware/secured.js'
 import * as TeamController from '../controllers/TeamController.js'
+import checkJwt from '../utils/checkJwt.js'
 
 const router = Router()
 
 router.post(
   '/add',
-  secured,
+  checkJwt,
   TeamController.createTeam
 )
 
 router.post(
   '/join',
-  secured,
+  checkJwt,
   TeamController.joinTeam
 )
 
 router.get(
-  '/me',
-  secured,
+  '/all',
+  checkJwt,
   TeamController.getUsersTeam
 )
 

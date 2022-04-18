@@ -2,10 +2,16 @@ import mongoose from 'mongoose'
 
 export const TravelSchema = new mongoose.Schema({
   team: { type: mongoose.Schema.Types.ObjectId, ref: 'Team' },
-  destination: String,
-  startDate: Date,
-  endDate: Date,
-  picture: String,
+  name: { type: String, required: true },
+  picture: { type: String, required: false },
+  startDate: { type: Date, required: true },
+  endDate: { type: Date, required: true },
+  steps: [{
+    name: { type: String, required: true },
+    picture: { type: String, required: false },
+    startDate: { type: Date, required: true },
+    endDate: { type: Date, required: true },
+  }],
 })
 
 export default mongoose.model('Travel', TravelSchema)
