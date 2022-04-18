@@ -1,6 +1,5 @@
 import Team from '../models/Team.js'
 import Travel from '../models/Travel.js'
-import User from '../models/User.js'
 
 export async function getUsersTravel(req, res) {
   try {
@@ -10,7 +9,6 @@ export async function getUsersTravel(req, res) {
       const teams = await Team.find({ teamComposition: { $in: [id] } }, 'id')
       const teamIds = teams.map(e => e?._id) 
       
-      console.log(teamIds)
       const travels = await Travel.find({ team: { $in: teamIds } })
 
       return res.status(200).json(travels)
