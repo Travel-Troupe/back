@@ -2,24 +2,19 @@ import express from 'express'
 import cors from 'cors'
 import dotenv from 'dotenv'
 import cookieParser from 'cookie-parser'
-import session from 'express-session'
 
 import IndexRoutes from './routes/index.js'
 import AuthRoutes from './routes/auth.js'
-import UserRoutes from './routes/user.js'
+import TeamRoutes from './routes/team.js'
+import TravelRoutes from './routes/travel.js'
 import connectDb from './utils/connection.js'
-import passport, { sess }  from './config/passport.js'
 
 const app = express()
 dotenv.config()
 
 connectDb()
 
-app.use(passport.initialize())
-
 app.use(cookieParser())
-app.use(session(sess))
-app.use(passport.session())
 
 app.use(express.urlencoded({extended: true})) 
 app.use(express.json())
@@ -29,6 +24,7 @@ app.use(cors())
 // Routes
 app.use('/', IndexRoutes)
 app.use('/', AuthRoutes)
-app.use('/', UserRoutes)
+app.use('/team', TeamRoutes)
+app.use('/travel', TravelRoutes)
 
 export default app

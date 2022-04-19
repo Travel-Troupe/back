@@ -1,54 +1,76 @@
-import dotenv from 'dotenv'
-import util from 'util'
-import url from 'url'
-import querystring from 'querystring'
 import { Router } from 'express'
-
-import passport from '../config/passport.js'
-import { isProduction } from '../config/constant.js'
+import bcrypt from 'bcrypt'
+import User from '../models/User.js'
+import generateToken from '../utils/generateToken.js'
 
 const router = Router()
-dotenv.config()
 
-router.get('/login', passport.authenticate('auth0', {
-  scope: 'openid email profile'
-}), function (req, res) {
-  res.redirect('/')
-})
+router.post(
+  '/register',
+  async (req, res) => {
+    try {
+      const { name, password } = req.body || {}
+      
+      if (!name || !password) {
+        return res
+          .status(400)
+          .json({ error: 'Please enter a valid username and password' })
+      }
 
-router.get('/callback', function (req, res, next) {
-  passport.authenticate('auth0', function (err, user) {
-    if (err) { return next(err) }
-    if (!user) { return res.redirect('/login') }
-    req.logIn(user, function (err) {
-      if (err) { return next(err) }
-      const returnTo = req.session.returnTo
-      delete req.session.returnTo
-      res.redirect(returnTo || '/user')
-    })
-  })(req, res, next)
-})
+      const hash = await bcrypt.hash(password, 10)
 
-router.get('/logout', (req, res) => {
-  req.logout()
-
-  let returnTo = req.protocol + '://' + req.hostname
-  let port = req.connection.localPort
-  // production is using default port
-  if (port !== undefined && port !== 80 && port !== 443 && !isProduction) {
-    returnTo += ':' + port
+      const userExists = await User.exists({ name })
+      
+      if (userExists) {
+        res.status(500).json({ error: 'User already exists' })
+      } else {
+        const user = await User.create({ name, password: hash })
+        res.status(201).json(user)
+      }
+    } catch (e) {
+      console.error(e)
+      res.status(500).json({ error: `An error occured: ${e?.message}` })
+    }
   }
+)
 
-  let logoutURL = new url.URL(
-    util.format('https://%s/v2/logout', process.env.AUTH0_DOMAIN)
-  )
-  let searchString = querystring.stringify({
-    client_id: process.env.AUTH0_CLIENT_ID,
-    returnTo: returnTo
-  })
-  logoutURL.search = searchString
+router.post(
+  '/login',
+  async (req, res) => {
 
-  res.redirect(logoutURL)
-})
+    try {
+      const { name, password } = req.body || {}
+      let matchPwd
+
+      if (!name || !password) {
+        return res
+          .status(400)
+          .json({ error: 'Please enter a valid username and password' })
+      }
+  
+      const [userFound] = await User.find({
+        name
+      }, 'id name password')
+
+      if (userFound) {
+        matchPwd = await bcrypt.compare(password, userFound.password)
+      }
+  
+      if (!userFound || !matchPwd) {
+        return res.status(400).json({ error: 'Email ou Mot de passe invalide.' })
+      }
+  
+      const token = generateToken({
+        id: userFound.id,
+        name: userFound.name,
+      })
+  
+      return res.status(200).json({ token })
+    } catch (e) {
+      console.error(e)
+      res.status(500).json({ error: `An error occured: ${e?.message}` })
+    }
+  },
+)
 
 export default router
