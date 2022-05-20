@@ -37,7 +37,7 @@ export async function createTravel(req, res) {
 
     if (team.owner == userId) {
       const travel = await Travel.create({
-        team: teamId,
+        team: _id,
         name,
         startDate: new Date(startDate),
         endDate: new Date(endDate),
@@ -48,6 +48,97 @@ export async function createTravel(req, res) {
     } else {
       throw new Error(
         'This user cannot create a travel'
+      )
+    }
+  } catch (e) {
+    console.error(e)
+    return res.status(400).json({ error: `Bad request: ${e?.message}` })
+  }
+}
+
+export async function addTravelStep(req, res) {
+  try {
+    const { user: { id: userId } } = req
+
+    const {
+      travelID,
+      name,
+      startDate,
+      endDate,
+      picture
+    } = req.body
+
+    let travel = await Travel.findOne({ id: travelID, owner: userId })
+    let steps = travel.steps
+
+    if (travel) {
+      let newStep = {
+        name,
+        startDate: new Date(startDate),
+        endDate: new Date(endDate),
+        picture,
+      }
+      console.log('new step = ', newStep)
+
+      steps.push(newStep)
+      console.log('new steps = ', steps)
+      const travel = await Travel.updateOne({ '_id':travelID},{
+        'steps': steps,
+      })
+  
+      return res.status(200).json(travel)
+    } else {
+      throw new Error(
+        'This user cannot add a step to this travel'
+      )
+    }
+  } catch (e) {
+    console.error(e)
+    return res.status(400).json({ error: `Bad request: ${e?.message}` })
+  }
+}
+
+export async function getTravelSteps(req, res) {
+  try {
+    const { user: { id } } = req
+    const {travelID} = req.body
+    if (id) {
+      let travel = await Travel.findOne({ id: travelID})
+
+      return res.status(200).json(travel)
+    }
+
+    throw new Error('Invalid request')
+  } catch(e) {
+    console.error(e)
+    return res.status(400).json({ error: `Bad request: ${e?.message}` })
+  }
+}
+
+export async function deleteTravelSteps(req, res) {
+  try {
+    const { user: { id: userId } } = req
+
+    const {
+      travelID,
+      stepID,
+    } = req.body
+
+    let travel = await Travel.findOne({ id: travelID, owner: userId })
+    let steps = travel.steps
+
+    if (travel) {
+      
+      let index = steps.map(function(e) { return e._id }).indexOf(stepID)
+      steps.splice(index, 1)      
+      const travel = await Travel.updateOne({ '_id':travelID},{
+        'steps': steps,
+      })
+  
+      return res.status(200).json(travel)
+    } else {
+      throw new Error(
+        'This user cannot add a step to this travel'
       )
     }
   } catch (e) {
