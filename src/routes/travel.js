@@ -16,4 +16,22 @@ router.post(
   TravelController.createTravel
 )
 
+router.post(
+  '/newStep',
+  checkJwt,
+  TravelController.addTravelStep
+)
+
+router.get(
+  '/getSteps',
+  checkJwt,
+  TravelController.getTravelSteps
+)
+
+router.delete(
+  '/deleteStep/:stepId',
+  checkJwt,
+  TravelController.deleteTravelSteps
+)
+
 export default router

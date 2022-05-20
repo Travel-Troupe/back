@@ -55,3 +55,84 @@ export async function createTravel(req, res) {
     return res.status(400).json({ error: `Bad request: ${e?.message}` })
   }
 }
+
+export async function addTravelStep(req, res) {
+  try {
+    const { user: { id: userId } } = req
+
+    const {
+      travelId,
+      name,
+      startDate,
+      description,
+      address,
+    } = req.body
+
+    let travel = await Travel.findOne({ id: travelId, owner: userId })
+    let steps = travel.steps
+
+    if (travel) {
+      let newStep = {
+        name,
+        date: new Date(startDate),
+        description, 
+        address
+      }
+      steps.push(newStep)
+      const travel = await Travel.updateOne({ '_id':travelId},{
+        steps
+      })
+  
+      return res.status(200).json(travel)
+    } else {
+      throw new Error(
+        'This user cannot add a step to this travel'
+      )
+    }
+  } catch (e) {
+    console.error(e)
+    return res.status(400).json({ error: `Bad request: ${e?.message}` })
+  }
+}
+
+export async function getTravelSteps(req, res) {
+  try {
+    const { user: { id } } = req
+    const { travelId } = req.body
+    if (id) {
+      let travel = await Travel.findOne({ id: travelId})
+
+      return res.status(200).json(travel)
+    }
+
+    throw new Error('Invalid request')
+  } catch(e) {
+    console.error(e)
+    return res.status(400).json({ error: `Bad request: ${e?.message}` })
+  }
+}
+
+export async function deleteTravelSteps(req, res) {
+  try {
+    const { params: { stepId } } = req
+    let travel = await Travel.findOne({ 'steps._id': stepId })
+    let steps = travel?.steps
+    let travelId = travel?._id
+    if (travel) {
+      let index = steps.map(function(e) { return e._id }).indexOf(stepId)
+      steps.splice(index, 1)      
+      const travel = await Travel.updateOne({ '_id': travelId},{
+        'steps': steps,
+      })
+  
+      return res.status(200).json(travel)
+    } else {
+      throw new Error(
+        'This user cannot add a step to this travel'
+      )
+    }
+  } catch (e) {
+    console.error(e)
+    return res.status(400).json({ error: `Bad request: ${e?.message}` })
+  }
+}

@@ -5,12 +5,13 @@ export const TravelSchema = new mongoose.Schema({
   name: { type: String, required: true },
   picture: { type: String, required: false },
   startDate: { type: Date, required: true },
-  endDate: { type: Date, required: true },
   steps: [{
+    step: { type: mongoose.Schema.Types.ObjectId, ref: 'Step' },
     name: { type: String, required: true },
-    picture: { type: String, required: false },
-    startDate: { type: Date, required: true },
-    endDate: { type: Date, required: true },
+    date: { type: Date, required: true },
+    time: { type: String, required: true },
+    description: { type: String, required: true },
+    address: { type: String, required: true },
   }],
 })
 
