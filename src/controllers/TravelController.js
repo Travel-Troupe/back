@@ -37,7 +37,7 @@ export async function createTravel(req, res) {
 
     if (team.owner == userId) {
       const travel = await Travel.create({
-        team: _id,
+        team: teamId,
         name,
         startDate: new Date(startDate),
         endDate: new Date(endDate),
