@@ -64,7 +64,6 @@ export async function addTravelStep(req, res) {
       travelId,
       name,
       startDate,
-      startTime,
       description,
       address,
     } = req.body
@@ -76,7 +75,6 @@ export async function addTravelStep(req, res) {
       let newStep = {
         name,
         date: new Date(startDate),
-        time: startTime,
         description, 
         address
       }
@@ -102,7 +100,7 @@ export async function getTravelSteps(req, res) {
     const { user: { id } } = req
     const { travelId } = req.body
     if (id) {
-      let travel = await Travel.findOne({ id: travelId}).sort({date: 1})
+      let travel = await Travel.findOne({ id: travelId})
 
       return res.status(200).json(travel)
     }
