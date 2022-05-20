@@ -61,26 +61,28 @@ export async function addTravelStep(req, res) {
     const { user: { id: userId } } = req
 
     const {
-      travelID,
+      travelId,
       name,
       startDate,
-      endDate,
-      picture
+      startTime,
+      description,
+      address,
     } = req.body
 
-    let travel = await Travel.findOne({ id: travelID, owner: userId })
+    let travel = await Travel.findOne({ id: travelId, owner: userId })
     let steps = travel.steps
 
     if (travel) {
       let newStep = {
         name,
-        startDate: new Date(startDate),
-        endDate: new Date(endDate),
-        picture,
+        date: new Date(startDate),
+        time: startTime,
+        description, 
+        address
       }
       steps.push(newStep)
-      const travel = await Travel.updateOne({ '_id':travelID},{
-        'steps': steps,
+      const travel = await Travel.updateOne({ '_id':travelId},{
+        steps
       })
   
       return res.status(200).json(travel)
@@ -98,9 +100,9 @@ export async function addTravelStep(req, res) {
 export async function getTravelSteps(req, res) {
   try {
     const { user: { id } } = req
-    const {travelID} = req.body
+    const { travelId } = req.body
     if (id) {
-      let travel = await Travel.findOne({ id: travelID})
+      let travel = await Travel.findOne({ id: travelId}).sort({date: 1})
 
       return res.status(200).json(travel)
     }
@@ -114,21 +116,14 @@ export async function getTravelSteps(req, res) {
 
 export async function deleteTravelSteps(req, res) {
   try {
-    const { user: { id: userId } } = req
-
-    const {
-      travelID,
-      stepID,
-    } = req.body
-
-    let travel = await Travel.findOne({ id: travelID, owner: userId })
-    let steps = travel.steps
-
+    const { params: { stepId } } = req
+    let travel = await Travel.findOne({ 'steps._id': stepId })
+    let steps = travel?.steps
+    let travelId = travel?._id
     if (travel) {
-      
-      let index = steps.map(function(e) { return e._id }).indexOf(stepID)
+      let index = steps.map(function(e) { return e._id }).indexOf(stepId)
       steps.splice(index, 1)      
-      const travel = await Travel.updateOne({ '_id':travelID},{
+      const travel = await Travel.updateOne({ '_id': travelId},{
         'steps': steps,
       })
   

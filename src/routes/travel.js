@@ -29,7 +29,7 @@ router.get(
 )
 
 router.delete(
-  '/deleteStep',
+  '/deleteStep/:stepId',
   checkJwt,
   TravelController.deleteTravelSteps
 )
