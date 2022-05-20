@@ -78,10 +78,7 @@ export async function addTravelStep(req, res) {
         endDate: new Date(endDate),
         picture,
       }
-      console.log('new step = ', newStep)
-
       steps.push(newStep)
-      console.log('new steps = ', steps)
       const travel = await Travel.updateOne({ '_id':travelID},{
         'steps': steps,
       })
