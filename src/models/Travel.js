@@ -3,6 +3,7 @@ import mongoose from 'mongoose'
 export const TravelSchema = new mongoose.Schema({
   team: { type: mongoose.Schema.Types.ObjectId, ref: 'Team' },
   name: { type: String, required: true },
+  location: { type: Object, required: true },
   picture: { type: String, required: false },
   startDate: { type: Date, required: true },
   steps: [{

@@ -1,3 +1,4 @@
+import axios from 'axios'
 import Team from '../models/Team.js'
 import Travel from '../models/Travel.js'
 
@@ -25,20 +26,57 @@ export async function createTravel(req, res) {
   try {
     const { user: { id: userId } } = req
 
+    let location = {}
+
     const {
       teamId,
       name,
+      locationPoi,
       startDate,
       endDate,
-      picture = ''
     } = req.body
 
     const [team] = await Team.find({ id: teamId, owner: userId })
 
     if (team.owner == userId) {
+      let picture = ''
+
+      try {
+        const unsplashQueryData = await axios.get('https://api.unsplash.com/search/photos', {
+          params: {
+            query: name,
+            orientation: 'landscape',
+          },
+          headers: {
+            'Authorization':`'Client-ID ${process.env.UNSPLASH_CLIENTID}`
+          }
+        })
+        const { data: { results } } = unsplashQueryData
+  
+        picture = results?.[0]?.urls?.small ?? ''
+      } catch(unsplashError) {
+        picture = '' // !TODO put a placeholder picture
+      }
+      try {
+        const { data: mapboxData } = await axios.get(
+          `https://api.mapbox.com/geocoding/v5/mapbox.places/${locationPoi}.json`,
+          {
+            params: {
+              access_token: process.env.MAPBOX_KEY
+            }
+          }
+        )
+        
+        location = mapboxData?.features?.[0] ?? []
+  
+      } catch(unsplashError) {
+        location = { error:'Location not found' }
+      }
+
       const travel = await Travel.create({
         team: teamId,
         name,
+        location,
         startDate: new Date(startDate),
         endDate: new Date(endDate),
         picture
@@ -78,9 +116,8 @@ export async function addTravelStep(req, res) {
         description, 
         address
       }
-      steps.push(newStep)
       const travel = await Travel.updateOne({ '_id':travelId},{
-        steps
+        steps: [...steps, newStep]
       })
   
       return res.status(200).json(travel)
@@ -119,10 +156,10 @@ export async function deleteTravelSteps(req, res) {
     let steps = travel?.steps
     let travelId = travel?._id
     if (travel) {
-      let index = steps.map(function(e) { return e._id }).indexOf(stepId)
+      let index = steps.findIndex(e => e._id === stepId)
       steps.splice(index, 1)      
       const travel = await Travel.updateOne({ '_id': travelId},{
-        'steps': steps,
+        steps,
       })
   
       return res.status(200).json(travel)

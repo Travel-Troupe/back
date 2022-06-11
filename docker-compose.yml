@@ -20,6 +20,8 @@ services:
       MONGO_ROOT_PASSWORD: $DB_ADMIN_PWD
       MONGO_HOST: mongodb
       JWTSECRET: $JWTSECRET
+      UNSPLASH_CLIENTID: $UNSPLASH_CLIENTID
+      MAPBOX_KEY: $MAPBOX_KEY
     volumes:
       - ./:/app
       - /app/node_modules
