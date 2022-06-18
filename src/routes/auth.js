@@ -41,7 +41,6 @@ router.post(
     try {
       const { name, password } = req.body || {}
       let matchPwd
-
       if (!name || !password) {
         return res
           .status(400)
