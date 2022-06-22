@@ -5,11 +5,9 @@ export const TeamSchema = new mongoose.Schema({
   slug: { type: String, unique: true },
   owner: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   teamComposition: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
-  validedStartDate: { type: Date, required: true },
-  validedEndDate: { type: Date, required: true },
+  validatedStartDate: { type: Date, required: false },
+  validatedEndDate: { type: Date, required: false },
   datesProposition: [{
-    StartDate: { type: Date, required: true },
-    EndDate: { type: Date, required: true },
     startDate: { type: Date, required: true },
     endDate: { type: Date, required: true },
   }],
