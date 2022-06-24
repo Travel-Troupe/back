@@ -7,10 +7,10 @@ export async function addDateProposition(req, res) {
     const {
       startDate,
       endDate,
-      slug
+      teamId
     } = req.body
   
-    const team = await Team.findOne({ slug })
+    const team = await Team.findOne({ '_id': teamId })
     let alreadyProposedDates = team.datesProposals
 
     if (alreadyProposedDates && alreadyProposedDates.length > 0) {
@@ -18,7 +18,7 @@ export async function addDateProposition(req, res) {
         if (date.proposedBy && date.proposedBy == userId){
           return res.status(428).json({ message: 'You have already proposed a date in this trip' })
         }
-        if (date.VotedBy && date.VotedBy.includes(userId)){
+        if (date.votedBy && date.votedBy.includes(userId)){
           return res.status(428).json({ message: 'You have already voted for a date in this trip' })
         }
       })
@@ -31,7 +31,7 @@ export async function addDateProposition(req, res) {
         proposedBy: userId, 
       }
 
-      const updatedTeam = await Team.updateOne({ slug },{
+      const updatedTeam = await Team.updateOne({ '_id': teamId  },{
         datesProposals: [...alreadyProposedDates, newDateProposition],
       })
 
@@ -50,15 +50,15 @@ export async function addDateProposition(req, res) {
 export async function getProposedDates(req, res) {
   try {
     const { user: { id } } = req
-    const { slug } = req.body
+    const { teamId } = req.body
     if (id) {
-      const team = await Team.findOne({ slug })
+      const team = await Team.findOne({ '_id': teamId })
   
       let alreadyProposedDates = team.datesProposals
       if (alreadyProposedDates && alreadyProposedDates.length > 2) {
         alreadyProposedDates.sort(function (proposal1, proposal2) {
-          if (proposal1.VotedBy.length > proposal2.VotedBy.length) return -1
-          if (proposal1.VotedBy.length < proposal2.VotedBy.length) return 1
+          if (proposal1.votedBy.length > proposal2.votedBy.length) return -1
+          if (proposal1.votedBy.length < proposal2.votedBy.length) return 1
         })
       }
             
@@ -77,11 +77,11 @@ export async function addVote(req, res) {
     const { user: { id: userId } } = req
     
     const {
-      slug,
+      teamId,
       proposalId,
     } = req.body
     
-    let team = await Team.findOne({ slug })
+    let team = await Team.findOne({ '_id': teamId  })
     let proposedDates = team.datesProposals
     
     if (proposedDates && proposedDates.length > 0) {
@@ -89,22 +89,22 @@ export async function addVote(req, res) {
         if (date.proposedBy && date.proposedBy == userId){
           return res.status(428).json({ message: 'You have already proposed a date in this trip' })
         }
-        if (date.VotedBy &&  date.VotedBy.length > 0 && date.VotedBy.includes(userId)){
+        if (date.votedBy &&  date.votedBy.length > 0 && date.votedBy.includes(userId)){
           return res.status(428).json({ message: 'You have already voted for a date in this trip' })
         }
       })
 
       proposedDates.forEach(date => {
         if (date.id == proposalId){
-          if(date.VotedBy &&  date.VotedBy.length > 0 ){
-            date.VotedBy.push(userId)
+          if(date.votedBy &&  date.votedBy.length > 0 ){
+            date.votedBy.push(userId)
           }
         }
       })  
     }
     
     if (team) {
-      const updatedTeam = await Team.updateOne({ slug },{
+      const updatedTeam = await Team.updateOne({ '_id': teamId },{
         datesProposals: proposedDates,
       })
 
@@ -125,16 +125,16 @@ export async function validDates(req, res){
     const { user: { id: userId } } = req
     
     const {
-      slug,
+      teamId,
       proposalId,
     } = req.body
     
-    let team = await Team.findOne({ slug })
+    let team = await Team.findOne({ '_id': teamId  })
     let proposedDates = team.datesProposals
     let selectedDate = proposedDates.find(date => date.id == proposalId)
 
     if (team.owner == userId)  {
-      const updatedTeam = await Team.updateOne({ slug},{
+      const updatedTeam = await Team.updateOne({ '_id': teamId },{
         validatedStartDate: selectedDate.startDate,
         validatedEndDate: selectedDate.endDate,
       })

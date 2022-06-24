@@ -8,7 +8,7 @@ export const TeamSchema = new mongoose.Schema({
   validatedStartDate: { type: Date, required: false },
   validatedEndDate: { type: Date, required: false },
   datesProposals: [{
-    proposal: { type: mongoose.Schema.Types.ObjectId, ref: 'Proposal' },
+    proposal: { type: mongoose.Schema.Types.ObjectId},
     startDate: { type: Date, required: true },
     endDate: { type: Date, required: true },
     proposedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
