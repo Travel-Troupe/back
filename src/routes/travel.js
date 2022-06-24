@@ -10,6 +10,12 @@ router.get(
   TravelController.getUsersTravel
 )
 
+router.get(
+  '/:travelId',
+  checkJwt,
+  TravelController.getTravelById
+)
+
 router.post(
   '/add',
   checkJwt,

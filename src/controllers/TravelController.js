@@ -11,6 +11,12 @@ export async function getUsersTravel(req, res) {
       const teamIds = teams.map(e => e?._id) 
       
       const travels = await Travel.find({ team: { $in: teamIds } })
+        .populate({
+          path : 'team',
+          populate : {
+            path : 'teamComposition'
+          }
+        })
 
       return res.status(200).json(travels)
     }
@@ -87,6 +93,28 @@ export async function createTravel(req, res) {
       throw new Error(
         'This user cannot create a travel'
       )
+    }
+  } catch (e) {
+    console.error(e)
+    return res.status(400).json({ error: `Bad request: ${e?.message}` })
+  }
+}
+
+export async function getTravelById(req, res) {
+  try {
+    const { params: { travelId } } = req
+
+    const travel = await Travel.findById(travelId)
+      .populate({
+        path : 'team',
+        populate : {
+          path : 'teamComposition'
+        }
+      })
+    if (travel) {
+      return res.status(200).json(travel)
+    } else {
+      throw new Error(`No travel found with id ${travelId}`)
     }
   } catch (e) {
     console.error(e)
