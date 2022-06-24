@@ -11,6 +11,12 @@ export async function getUsersTravel(req, res) {
       const teamIds = teams.map(e => e?._id) 
       
       const travels = await Travel.find({ team: { $in: teamIds } })
+        .populate({
+          path : 'team',
+          populate : {
+            path : 'teamComposition'
+          }
+        })
 
       return res.status(200).json(travels)
     }
