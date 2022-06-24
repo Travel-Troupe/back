@@ -94,6 +94,22 @@ export async function createTravel(req, res) {
   }
 }
 
+export async function getTravelById(req, res) {
+  try {
+    const { params: { travelId } } = req
+
+    const travel = await Travel.findById(travelId)
+    if (travel) {
+      return res.status(200).json(travel)
+    } else {
+      throw new Error(`No travel found with id ${travelId}`)
+    }
+  } catch (e) {
+    console.error(e)
+    return res.status(400).json({ error: `Bad request: ${e?.message}` })
+  }
+}
+
 export async function addTravelStep(req, res) {
   try {
     const { user: { id: userId } } = req
