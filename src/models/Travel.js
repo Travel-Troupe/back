@@ -7,7 +7,7 @@ export const TravelSchema = new mongoose.Schema({
   picture: { type: String, required: false },
   startDate: { type: Date, required: true },
   steps: [{
-    step: { type: mongoose.Schema.Types.ObjectId, ref: 'Step' },
+    step: { type: mongoose.Schema.Types.ObjectId},
     name: { type: String, required: true },
     date: { type: Date, required: true },
     time: { type: String, required: true },
