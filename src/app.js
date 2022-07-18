@@ -15,12 +15,11 @@ dotenv.config()
 
 connectDb()
 
+// Middlewares
 app.use(cookieParser())
-
-app.use(express.urlencoded({extended: true})) 
+app.use(express.urlencoded({extended: true}))
 app.use(express.json())
 app.use(cors())
-// Middlewares
 
 // Routes
 app.use('/', IndexRoutes)
