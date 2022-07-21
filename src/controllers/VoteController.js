@@ -135,14 +135,15 @@ export async function validateDate(req, res){
     const selectedEndDate = new Date(endDate)
 
     if (
-      team.owner === userId
+      team &&
+      team.owner.toString() === userId
       && !!selectedStartDate
       && !!selectedEndDate
     ) {
-      const updatedTeam = await Team.updateOne({ '_id': teamId },{
+      const updatedTeam = await Team.findOneAndUpdate({ '_id': teamId },{
         validatedStartDate: selectedStartDate,
         validatedEndDate: selectedEndDate,
-      })
+      }, { new: true })
 
       return res.status(200).json(updatedTeam)
     } else {
