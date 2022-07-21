@@ -44,7 +44,7 @@ router.post(
 router.post(
   '/dates/valid',
   checkJwt,
-  VoteController.validDates
+  VoteController.validateDate
 )
 
 export default router

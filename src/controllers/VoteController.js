@@ -3,13 +3,13 @@ import Team from '../models/Team.js'
 export async function addDateProposition(req, res) {
   try {
     const { user: { id: userId } } = req
-  
+
     const {
       startDate,
       endDate,
       teamId
     } = req.body
-  
+
     const team = await Team.findOne({ '_id': teamId })
     let alreadyProposedDates = team.datesProposals
 
@@ -28,7 +28,7 @@ export async function addDateProposition(req, res) {
       let newDateProposition = {
         startDate: new Date(startDate),
         endDate: new Date(endDate),
-        proposedBy: userId, 
+        proposedBy: userId,
       }
 
       const updatedTeam = await Team.updateOne({ '_id': teamId  },{
@@ -53,7 +53,7 @@ export async function getProposedDates(req, res) {
     const { teamId } = req.body
     if (id) {
       const team = await Team.findOne({ '_id': teamId })
-  
+
       let alreadyProposedDates = team.datesProposals
       if (alreadyProposedDates && alreadyProposedDates.length > 2) {
         alreadyProposedDates.sort(function (proposal1, proposal2) {
@@ -61,10 +61,10 @@ export async function getProposedDates(req, res) {
           if (proposal1.votedBy.length < proposal2.votedBy.length) return 1
         })
       }
-            
+
       return res.status(200).json(alreadyProposedDates)
     }
-  
+
     throw new Error('Invalid request')
   } catch(e) {
     console.error(e)
@@ -75,15 +75,15 @@ export async function getProposedDates(req, res) {
 export async function addVote(req, res) {
   try {
     const { user: { id: userId } } = req
-    
+
     const {
       teamId,
       proposalId,
     } = req.body
-    
+
     let team = await Team.findOne({ '_id': teamId  })
     let proposedDates = team.datesProposals
-    
+
     if (proposedDates && proposedDates.length > 0) {
       proposedDates.forEach(date => {
         if (date.proposedBy && date.proposedBy == userId){
@@ -100,9 +100,9 @@ export async function addVote(req, res) {
             date.votedBy.push(userId)
           }
         }
-      })  
+      })
     }
-    
+
     if (team) {
       const updatedTeam = await Team.updateOne({ '_id': teamId },{
         datesProposals: proposedDates,
@@ -120,23 +120,28 @@ export async function addVote(req, res) {
   }
 }
 
-export async function validDates(req, res){
+export async function validateDate(req, res){
   try {
     const { user: { id: userId } } = req
-    
+
     const {
       teamId,
-      proposalId,
+      startDate,
+      endDate,
     } = req.body
-    
-    let team = await Team.findOne({ '_id': teamId  })
-    let proposedDates = team.datesProposals
-    let selectedDate = proposedDates.find(date => date.id == proposalId)
 
-    if (team.owner == userId)  {
+    const team = await Team.findOne({ '_id': teamId  })
+    const selectedStartDate = new Date(startDate)
+    const selectedEndDate = new Date(endDate)
+
+    if (
+      team.owner === userId
+      && !!selectedStartDate
+      && !!selectedEndDate
+    ) {
       const updatedTeam = await Team.updateOne({ '_id': teamId },{
-        validatedStartDate: selectedDate.startDate,
-        validatedEndDate: selectedDate.endDate,
+        validatedStartDate: selectedStartDate,
+        validatedEndDate: selectedEndDate,
       })
 
       return res.status(200).json(updatedTeam)
