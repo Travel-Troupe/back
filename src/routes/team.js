@@ -23,6 +23,12 @@ router.get(
   TeamController.getUsersTeam
 )
 
+router.get(
+  '/:teamId',
+  checkJwt,
+  TeamController.getTeamById
+)
+
 router.post(
   '/propose',
   checkJwt,

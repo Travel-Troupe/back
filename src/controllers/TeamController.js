@@ -46,7 +46,7 @@ export async function joinTeam(req, res) {
       return res.status(400).json({ message: 'you\'ve already joined this team'})
     }
   }
-  
+
   return res.status(400).json({ message: 'Nothing happened'})
 }
 
@@ -62,6 +62,21 @@ export async function getUsersTeam(req, res) {
     }
     throw new Error('Invalid request')
 
+  } catch(e) {
+    return res.status(400).json({ error: 'Bad request' })
+  }
+}
+
+export async function getTeamById(req, res) {
+  const { params: { teamId } } = req
+  try {
+    if (teamId) {
+      const team = await Team.findById(teamId).populate('teamComposition')
+
+      return res.status(200).json(team)
+    } else {
+      throw new Error('Bad request, please provide a valid teamId')
+    }
   } catch(e) {
     return res.status(400).json({ error: 'Bad request' })
   }
