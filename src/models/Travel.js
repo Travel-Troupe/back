@@ -12,7 +12,7 @@ export const TravelSchema = new mongoose.Schema({
     date: { type: Date, required: true },
     time: { type: String, required: true },
     description: { type: String, required: true },
-    address: { type: String, required: true },
+    address: { type: Object, required: true },
   }],
 })
 

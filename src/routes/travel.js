@@ -28,12 +28,6 @@ router.post(
   TravelController.addTravelStep
 )
 
-router.get(
-  '/getSteps',
-  checkJwt,
-  TravelController.getTravelSteps
-)
-
 router.delete(
   '/deleteStep/:stepId',
   checkJwt,

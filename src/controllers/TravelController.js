@@ -1,6 +1,7 @@
 import axios from 'axios'
 import Team from '../models/Team.js'
 import Travel from '../models/Travel.js'
+import Location from '../services/Location.js'
 
 export async function getUsersTravel(req, res) {
   try {
@@ -8,8 +9,8 @@ export async function getUsersTravel(req, res) {
     if (id) {
       // user's team
       const teams = await Team.find({ teamComposition: { $in: [id] } }, 'id')
-      const teamIds = teams.map(e => e?._id) 
-      
+      const teamIds = teams.map(e => e?._id)
+
       const travels = await Travel.find({ team: { $in: teamIds } })
         .populate({
           path : 'team',
@@ -31,9 +32,6 @@ export async function getUsersTravel(req, res) {
 export async function createTravel(req, res) {
   try {
     const { user: { id: userId } } = req
-
-    let location = {}
-
     const {
       teamId,
       name,
@@ -44,7 +42,7 @@ export async function createTravel(req, res) {
 
     const [team] = await Team.find({ id: teamId, owner: userId })
 
-    if (team.owner == userId) {
+    if (team && team.owner === userId) {
       let picture = ''
 
       try {
@@ -58,26 +56,12 @@ export async function createTravel(req, res) {
           }
         })
         const { data: { results } } = unsplashQueryData
-  
+
         picture = results?.[0]?.urls?.small ?? ''
       } catch(unsplashError) {
         picture = '' // !TODO put a placeholder picture
       }
-      try {
-        const { data: mapboxData } = await axios.get(
-          `https://api.mapbox.com/geocoding/v5/mapbox.places/${locationPoi}.json`,
-          {
-            params: {
-              access_token: process.env.MAPBOX_KEY
-            }
-          }
-        )
-        
-        location = mapboxData?.features?.[0] ?? []
-  
-      } catch(unsplashError) {
-        location = { error:'Location not found' }
-      }
+      const location = await Location.getLocation(locationPoi)
 
       const travel = await Travel.create({
         team: teamId,
@@ -87,7 +71,7 @@ export async function createTravel(req, res) {
         endDate: new Date(endDate),
         picture
       })
-  
+
       return res.status(200).json(travel)
     } else {
       throw new Error(
@@ -134,24 +118,45 @@ export async function addTravelStep(req, res) {
       address,
     } = req.body
 
-    let travel = await Travel.findOne({ id: travelId, owner: userId })
-    let steps = travel.steps
+    const location = await Location.getLocation(address)
+
+    const travel = await Travel.findOne({ id: travelId })
+      .populate({
+        path : 'team',
+        populate : {
+          path : 'teamComposition'
+        }
+      })
 
     if (travel) {
-      let newStep = {
-        name,
-        date: new Date(startDate),
-        description, 
-        address
+      const { team: { teamComposition } } = travel
+
+      const memberIds = teamComposition.map(({ _id: id }) => id.toString())
+
+      if (memberIds.includes(userId)) {
+        const newStep = {
+          name,
+          date: new Date(startDate),
+          description,
+          address: location
+        }
+
+        const updatedTravel = await Travel.updateOne({ '_id':travelId },{
+          $push: {
+            steps: newStep
+          }
+        }, { new: true})
+
+        return res.status(200).json(updatedTravel)
+      } else {
+        throw new Error(
+          'This user cannot update this travel'
+        )
       }
-      const travel = await Travel.updateOne({ '_id':travelId},{
-        steps: [...steps, newStep]
-      })
-  
-      return res.status(200).json(travel)
+
     } else {
       throw new Error(
-        'This user cannot add a step to this travel'
+        'This travel doesn\'t exists'
       )
     }
   } catch (e) {
@@ -160,40 +165,31 @@ export async function addTravelStep(req, res) {
   }
 }
 
-export async function getTravelSteps(req, res) {
-  try {
-    const { user: { id } } = req
-    const { travelId } = req.body
-    if (id) {
-      let travel = await Travel.findOne({ id: travelId})
-
-      return res.status(200).json(travel)
-    }
-
-    throw new Error('Invalid request')
-  } catch(e) {
-    console.error(e)
-    return res.status(400).json({ error: `Bad request: ${e?.message}` })
-  }
-}
-
 export async function deleteTravelSteps(req, res) {
   try {
-    const { params: { stepId } } = req
+    const { params: { stepId }, user: { id: userId } } = req
     let travel = await Travel.findOne({ 'steps._id': stepId })
-    let steps = travel?.steps
-    let travelId = travel?._id
-    if (travel) {
-      let index = steps.findIndex(e => e._id === stepId)
-      steps.splice(index, 1)      
-      const travel = await Travel.updateOne({ '_id': travelId},{
-        steps,
+      .populate({
+        path : 'team',
+        populate : {
+          path : 'teamComposition'
+        }
       })
-  
-      return res.status(200).json(travel)
+    const { team: { teamComposition }, _id: travelId } = travel
+
+    if (travel) {
+      const memberIds = teamComposition.map(({ _id: id }) => id.toString())
+      if (memberIds.includes(userId)) {
+        const updatedTravel = await Travel.updateOne({ '_id': travelId },{
+          $pull: {
+            steps: stepId
+          }
+        })
+        return res.status(200).json(updatedTravel)
+      }
     } else {
       throw new Error(
-        'This user cannot add a step to this travel'
+        'This user cannot delete a step from this travel'
       )
     }
   } catch (e) {
