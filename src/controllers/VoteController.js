@@ -10,7 +10,7 @@ export async function addDateProposition(req, res) {
       teamId
     } = req.body
 
-    const team = await Team.findOne({ '_id': teamId })
+    const team = await Team.findById(teamId)
     let alreadyProposedDates = team.datesProposals
 
     if (alreadyProposedDates && alreadyProposedDates.length > 0) {
@@ -52,7 +52,7 @@ export async function getProposedDates(req, res) {
     const { user: { id } } = req
     const { teamId } = req.body
     if (id) {
-      const team = await Team.findOne({ '_id': teamId })
+      const team = await Team.findById(teamId)
 
       let alreadyProposedDates = team.datesProposals
       if (alreadyProposedDates && alreadyProposedDates.length > 2) {
@@ -81,7 +81,7 @@ export async function addVote(req, res) {
       proposalId,
     } = req.body
 
-    let team = await Team.findOne({ '_id': teamId  })
+    let team = await Team.findById(teamId)
     let proposedDates = team.datesProposals
 
     if (proposedDates && proposedDates.length > 0) {
@@ -130,13 +130,13 @@ export async function validateDate(req, res){
       endDate,
     } = req.body
 
-    const team = await Team.findOne({ '_id': teamId  })
+    const team = await Team.findById(teamId)
     const selectedStartDate = new Date(startDate)
     const selectedEndDate = new Date(endDate)
 
     if (
       team &&
-      team.owner.toString() === userId
+      team.owner.toString() === userId.toString()
       && !!selectedStartDate
       && !!selectedEndDate
     ) {

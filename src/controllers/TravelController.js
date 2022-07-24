@@ -42,13 +42,15 @@ export async function createTravel(req, res) {
 
     const [team] = await Team.find({ id: teamId, owner: userId })
 
-    if (team && team.owner === userId) {
+    if (team && team.owner.toString() === userId.toString()) {
       let picture = ''
+
+      const location = await Location.getLocation(locationPoi)
 
       try {
         const unsplashQueryData = await axios.get('https://api.unsplash.com/search/photos', {
           params: {
-            query: name,
+            query: location?.place_name ?? name,
             orientation: 'landscape',
           },
           headers: {
@@ -61,7 +63,6 @@ export async function createTravel(req, res) {
       } catch(unsplashError) {
         picture = '' // !TODO put a placeholder picture
       }
-      const location = await Location.getLocation(locationPoi)
 
       const travel = await Travel.create({
         team: teamId,
@@ -120,7 +121,7 @@ export async function addTravelStep(req, res) {
 
     const location = await Location.getLocation(address)
 
-    const travel = await Travel.findOne({ id: travelId })
+    const travel = await Travel.findById(travelId)
       .populate({
         path : 'team',
         populate : {
@@ -133,7 +134,7 @@ export async function addTravelStep(req, res) {
 
       const memberIds = teamComposition.map(({ _id: id }) => id.toString())
 
-      if (memberIds.includes(userId)) {
+      if (memberIds.includes(userId.toString())) {
         const newStep = {
           name,
           date: new Date(startDate),
@@ -179,7 +180,7 @@ export async function deleteTravelSteps(req, res) {
 
     if (travel) {
       const memberIds = teamComposition.map(({ _id: id }) => id.toString())
-      if (memberIds.includes(userId)) {
+      if (memberIds.includes(userId.toString())) {
         const updatedTravel = await Travel.updateOne({ '_id': travelId },{
           $pull: {
             steps: stepId
