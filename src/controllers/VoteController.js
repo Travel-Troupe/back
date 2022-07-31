@@ -73,6 +73,7 @@ export async function addVote(req, res) {
     let team = await Team.findById(teamId)
     let proposedDates = team.datesProposals
 
+    /* TO OPTIMISE
     if (proposedDates && proposedDates.length > 0) {
       proposedDates.forEach(date => {
         if (date.proposedBy && date.proposedBy == userId){
@@ -82,6 +83,7 @@ export async function addVote(req, res) {
           return res.status(428).json({ message: 'You have already voted for a date in this trip' })
         }
       })
+      */
 
       proposedDates.forEach(date => {
         if (date.id == proposalId){
