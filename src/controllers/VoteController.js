@@ -13,17 +13,6 @@ export async function addDateProposition(req, res) {
     const team = await Team.findById(teamId)
     let alreadyProposedDates = team.datesProposals
 
-    if (alreadyProposedDates && alreadyProposedDates.length > 0) {
-      alreadyProposedDates.forEach(date => {
-        if (date.proposedBy && date.proposedBy == userId){
-          return res.status(428).json({ message: 'You have already proposed a date in this trip' })
-        }
-        if (date.votedBy && date.votedBy.includes(userId)){
-          return res.status(428).json({ message: 'You have already voted for a date in this trip' })
-        }
-      })
-    }
-
     if (team) {
       let newDateProposition = {
         startDate: new Date(startDate),
